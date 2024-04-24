@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Détails de la commande</title>
+        <style>
+            table {
+                width: 70%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            th, td {
+                border: 1px solid black;
+                padding: 10px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        </style>
+    </head>
+    <body>
+
+        <h1>Détails de la commande</h1>
+
+        <table id="orderDetails">
+            <thead>
+                <tr>
+                    <th>Attribut</th>
+                    <th>Valeur</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Les détails de la commande seront insérés ici -->
+            </tbody>
+        </table>
+
+        <script>
+            // Récupérer l'ID de la commande depuis l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+
+            // Appeler la fonction get_order
+            fetch(`http://localhost:5000/order/${orderId}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur réseau.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remplir le tableau avec les détails de la commande
+                const orderDetailsTable = document.getElementById('orderDetails').getElementsByTagName('tbody')[0];
+
+                for (const [key, val] of Object.entries(data.order)) {
+                    let value = val;
+                    if (typeof value === 'object' && value !== null) {
+                        value = JSON.stringify(value);
+                    }
+
+                    const row = orderDetailsTable.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+
+                    cell1.innerHTML = key;
+                    cell2.innerHTML = value;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors de la récupération des détails de la commande.');
+            });
+        </script>
+
+    </body>
+</html>
